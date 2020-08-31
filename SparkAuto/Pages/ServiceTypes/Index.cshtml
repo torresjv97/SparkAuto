@@ -5,4 +5,51 @@
     Layout = "~/Pages/Shared/_Layout.cshtml";
 }
 
-<h1>Service Type</h1>
+<br />
+<br />
+
+<div class="border backgroundWhite">
+    <div class="row">
+        <div class="col-6">
+            <h2 class="text-info">Service Type List</h2>
+        </div>
+        <div class="col-6 text-right">
+            <a asp-page="Create" class="btn btn-info">
+                <i class="fa fa-plus"></i> Create New
+            </a>
+        </div>
+    </div>
+    <br/>
+    <div>
+        @if (!Model.ServiceType.Any())
+        {
+            <p>No Service Type exists. Please create a new Service Type.</p>
+        }
+        else
+        {
+            <table class="table table-striped border">
+                <tr class="table-secondary">
+                    <th>
+                        @Html.DisplayNameFor(m => m.ServiceType[0].Name)
+                    </th>
+                    <th>
+                        @Html.DisplayNameFor(m => m.ServiceType[0].Price)
+                    </th>
+                    <th></th>
+                </tr>
+                @foreach (var item in Model.ServiceType)
+                {
+                    <tr>
+                        <td>
+                            @Html.DisplayFor(m => item.Name)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(m => item.Price)
+                        </td>
+                        <td></td>
+                    </tr>
+                }
+            </table>
+        }
+    </div>
+</div>
