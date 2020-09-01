@@ -10,6 +10,7 @@ namespace SparkAuto.Models
     {
         public int Id { get; set; }
         [Required] public string Name { get; set; }
+        [DataType(DataType.Currency)]
         [Required] public double Price { get; set; }
     }
 }
