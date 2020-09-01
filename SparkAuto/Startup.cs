@@ -44,6 +44,13 @@ namespace SparkAuto
                 .AddEntityFrameworkStores<ApplicationDbContext>();
             services.AddRazorPages().AddRazorRuntimeCompilation();
             services.AddSingleton<IEmailSender, EmailSender>();
+
+            services.AddAuthentication().AddFacebook(fb =>
+            {
+                fb.AppId = "1062795154192453";
+                fb.AppSecret = "4f1e0691efe0f5b93cd9d5d480fd69c2";
+            });
+
             services.Configure<EmailOptions>(Configuration);
         }
 
