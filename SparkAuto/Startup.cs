@@ -38,7 +38,7 @@ namespace SparkAuto
                 options.UseSqlServer(
                     Configuration.GetConnectionString("DefaultConnection")));
             services.AddIdentity<IdentityUser, IdentityRole>()
-                .AddDefaultTokenProviders()
+                .AddDefaultTokenProviders().AddDefaultUI()
                 .AddEntityFrameworkStores<ApplicationDbContext>();
             services.AddRazorPages().AddRazorRuntimeCompilation();
         }
