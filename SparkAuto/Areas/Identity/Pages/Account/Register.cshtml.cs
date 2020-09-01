@@ -25,7 +25,7 @@ namespace SparkAuto.Areas.Identity.Pages.Account
         private readonly SignInManager<IdentityUser> _signInManager;
         private readonly UserManager<IdentityUser> _userManager;
         private readonly ILogger<RegisterModel> _logger;
-        //private readonly IEmailSender _emailSender;
+        private readonly IEmailSender _emailSender;
         private readonly RoleManager<IdentityRole> _roleManager;
         private readonly ApplicationDbContext _db;
 
@@ -35,13 +35,13 @@ namespace SparkAuto.Areas.Identity.Pages.Account
             ILogger<RegisterModel> logger,
             RoleManager<IdentityRole> roleManager,
             ApplicationDbContext db
-            //,IEmailSender emailSender
+            ,IEmailSender emailSender
             )
         {
             _userManager = userManager;
             _signInManager = signInManager;
             _logger = logger;
-            //_emailSender = emailSender;
+            _emailSender = emailSender;
             _db = db;
             _roleManager = roleManager;
         }
@@ -104,6 +104,10 @@ namespace SparkAuto.Areas.Identity.Pages.Account
                     PostalCode = Input.PostalCode,
                     PhoneNumber = Input.PhoneNumber
                 };
+                if (!Input.IsAdmin)
+                {
+                    user.EmailConfirmed = true;
+                }
                 var result = await _userManager.CreateAsync(user, Input.Password);
                 if (result.Succeeded)
                 {
@@ -126,8 +130,8 @@ namespace SparkAuto.Areas.Identity.Pages.Account
                             values: new { userId = user.Id, code = code },
                             protocol: Request.Scheme);
 
-                        //await _emailSender.SendEmailAsync(Input.Email, "Confirm your email",
-                        //    $"Please confirm your account by <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>clicking here</a>.");
+                        await _emailSender.SendEmailAsync(Input.Email, "Confirm your email",
+                            $"Please confirm your account by <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>clicking here</a>.");
 
                         return RedirectToPage("/Users/Index");
                     }
