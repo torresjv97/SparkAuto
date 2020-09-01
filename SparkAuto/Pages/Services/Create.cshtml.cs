@@ -55,7 +55,67 @@ namespace SparkAuto.Pages.Services
             }
 
             return Page();
+        }
+        public async Task<IActionResult> OnPostAddToCart()
+        {
+            ServiceShoppingCart objServiceCart = new ServiceShoppingCart()
+            {
+                CarId = CarServiceVM.Car.Id,
+                ServiceTypeId = CarServiceVM.ServiceDetails.ServiceTypeId
+            };
 
+            _db.ServiceShoppingCart.Add(objServiceCart);
+            await _db.SaveChangesAsync();
+            return RedirectToPage("Create", new { carId = CarServiceVM.Car.Id });
+        }
+
+        public async Task<IActionResult> OnPostRemoveFromCart(int serviceTypeId)
+        {
+            ServiceShoppingCart objServiceCart = _db.ServiceShoppingCart
+                .FirstOrDefault(u => u.CarId == CarServiceVM.Car.Id && u.ServiceTypeId == serviceTypeId);
+
+
+            _db.ServiceShoppingCart.Remove(objServiceCart);
+            await _db.SaveChangesAsync();
+            return RedirectToPage("Create", new { carId = CarServiceVM.Car.Id });
+        }
+
+        public async Task<IActionResult> OnPostAsync()
+        {
+            if (ModelState.IsValid)
+            {
+                CarServiceVM.ServiceHeader.DateAdded = DateTime.Now;
+                CarServiceVM.ServiceShoppingCart = _db.ServiceShoppingCart.Include(c => c.ServiceType).ToList();
+                foreach (var item in CarServiceVM.ServiceShoppingCart)
+                {
+                    CarServiceVM.ServiceHeader.TotalPrice += item.ServiceType.Price;
+                }
+                CarServiceVM.ServiceHeader.CarId = CarServiceVM.Car.Id;
+
+                _db.ServiceHeader.Add(CarServiceVM.ServiceHeader);
+                await _db.SaveChangesAsync();
+
+                foreach (var detail in CarServiceVM.ServiceShoppingCart)
+                {
+                    ServiceDetails serviceDetails = new ServiceDetails
+                    {
+                        ServiceHeaderId = CarServiceVM.ServiceHeader.Id,
+                        ServiceName = detail.ServiceType.Name,
+                        ServicePrice = detail.ServiceType.Price,
+                        ServiceTypeId = detail.ServiceTypeId
+                    };
+
+                    _db.ServiceDetails.Add(serviceDetails);
+
+                }
+                _db.ServiceShoppingCart.RemoveRange(CarServiceVM.ServiceShoppingCart);
+
+                await _db.SaveChangesAsync();
+
+                return RedirectToPage("../Cars/Index", new { userId = CarServiceVM.Car.UserId });
+            }
+
+            return Page();
         }
     }
 }
