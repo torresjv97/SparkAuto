@@ -6,6 +6,8 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.EntityFrameworkCore;
+using SparkAuto.Data;
 
 namespace SparkAuto.Areas.Identity.Pages.Account.Manage
 {
@@ -13,11 +15,14 @@ namespace SparkAuto.Areas.Identity.Pages.Account.Manage
     {
         private readonly UserManager<IdentityUser> _userManager;
         private readonly SignInManager<IdentityUser> _signInManager;
+        private readonly ApplicationDbContext _db;
 
         public IndexModel(
             UserManager<IdentityUser> userManager,
-            SignInManager<IdentityUser> signInManager)
+            SignInManager<IdentityUser> signInManager,
+            ApplicationDbContext db)
         {
+            _db = db;
             _userManager = userManager;
             _signInManager = signInManager;
         }
@@ -35,18 +40,27 @@ namespace SparkAuto.Areas.Identity.Pages.Account.Manage
             [Phone]
             [Display(Name = "Phone number")]
             public string PhoneNumber { get; set; }
+
+            [Required]
+            public string Name { get; set; }
+            public string Address { get; set; }
+            public string City { get; set; }
+            public string PostalCode { get; set; }
         }
 
         private async Task LoadAsync(IdentityUser user)
         {
-            var userName = await _userManager.GetUserNameAsync(user);
-            var phoneNumber = await _userManager.GetPhoneNumberAsync(user);
+            var userFromDb = await _db.ApplicationUser.FirstOrDefaultAsync(u => u.Email == user.Email);
 
-            Username = userName;
+            Username = userFromDb.UserName;
 
             Input = new InputModel
             {
-                PhoneNumber = phoneNumber
+                PhoneNumber = userFromDb.PhoneNumber,
+                Address = userFromDb.Address,
+                City = userFromDb.City,
+                Name = userFromDb.Name,
+                PostalCode = userFromDb.PostalCode,
             };
         }
 
